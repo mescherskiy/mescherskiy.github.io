@@ -1,8 +1,19 @@
 import { configureStore } from '@reduxjs/toolkit';
-import counterReducer from '../features/counter/counterSlice';
+import authReducer from "./slices/auth";
+import messageReducer from "./slices/message";
+import api from './api/api';
+
+const reducer = {
+  [api.reducerPath]: api.reducer,
+  auth: authReducer,
+  message: messageReducer
+}
 
 export const store = configureStore({
-  reducer: {
-    counter: counterReducer,
-  },
+  reducer: reducer,
+  middleware: (getDefaultMiddleware) => [
+    ...getDefaultMiddleware(),
+    api.middleware
+  ],
+  devTools: true
 });
