@@ -2,8 +2,12 @@ import React from "react";
 import { Navigate } from 'react-router-dom';
 import { useSelector } from "react-redux";
 
+import { selectCurrentUser } from "../slices/authSlice";
+
 const Profile = () => {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = useSelector(selectCurrentUser)
+
+  //const user = JSON.parse(localStorage.getItem("user"));
 
   if (!user) {
     return <Navigate to="/login" />;
