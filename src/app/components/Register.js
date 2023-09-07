@@ -1,161 +1,175 @@
-import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Formik, Field, Form, ErrorMessage } from "formik";
-import * as Yup from "yup";
+import React, { useState } from "react";
+import { motion } from "framer-motion";
 
-// import { register } from "../slices/auth";
-import { clearMessage } from "../slices/message";
+import { useRegistrationMutation } from "../api/api";
 
 const Register = () => {
-  const [successful, setSuccessful] = useState(false);
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const { message } = useSelector((state) => state.message);
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(clearMessage());
-  }, [dispatch]);
-
-  const initialValues = {
-    name: "",
+  const [inputErrors, setInputErrors] = useState({
+    username: "",
     email: "",
-    password: "",
+    password: ""
+  })
+
+  const [errMsg, setErrMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+
+  const [registration, registrationResult] = useRegistrationMutation();
+
+  const checkUsername = () => {
+    if (!username) {
+      setInputErrors((rest) => ({
+        ...rest,
+        username: "This field is required"
+      }))
+    } else if (username.length < 3 || username.length > 20) {
+      setInputErrors((rest) => ({
+        ...rest,
+        username: "Username must be between 3 and 20 characters."
+      }))
+    }
+  }
+
+  const checkEmail = () => {
+    const emailPattern = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/
+    if (!email) {
+      setInputErrors((rest) => ({
+        ...rest,
+        email: "This field is required"
+      }))
+    } else if (!emailPattern.test(email)) {
+      setInputErrors((rest) => ({
+        ...rest,
+        email: "This is not a valid email."
+      }))
+    }
+  }
+
+  const checkPassword = () => {
+    if (!password) {
+      setInputErrors((rest) => ({
+        ...rest,
+        password: "This field is required"
+      }))
+    } else if (password.length < 6 || password.length > 40) {
+      setInputErrors((rest) => ({
+        ...rest,
+        password: "The password must be between 6 and 40 characters."
+      }))
+    }
+  }
+
+  const handleRegister = async (e) => {
+    e.preventDefault()
+
+    if (Object.values(inputErrors).every(value => value === "")) {
+      try {
+        await registration({ username, email, password }).unwrap()
+        setSuccessMsg("User created successfully!")
+      } catch (error) {
+        setErrMsg(error.message)
+      }
+    }
   };
 
-  const validationSchema = Yup.object().shape({
-    name: Yup.string()
-      .test(
-        "len",
-        "The name must be between 3 and 20 characters.",
-        (val) =>
-          val && val.toString().length >= 3 && val.toString().length <= 20
-      )
-      .required("This field is required!"),
-    email: Yup.string()
-      .email("This is not a valid email.")
-      .required("This field is required!"),
-    password: Yup.string()
-      .test(
-        "len",
-        "The password must be between 6 and 40 characters.",
-        (val) =>
-          val && val.toString().length >= 6 && val.toString().length <= 40
-      )
-      .required("This field is required!"),
-  });
-
-  const handleRegister = (formValue) => {
-    const { username, email, password } = formValue;
-
-    setSuccessful(false);
-
-    // dispatch(register({ username, email, password }))
-    //   .unwrap()
-    //   .then(() => {
-    //     setSuccessful(true);
-    //   })
-    //   .catch(() => {
-    //     setSuccessful(false);
-    //   });
-  };
+  if (registrationResult.isError) {
+    setErrMsg(registrationResult.error.message)
+  }
 
   return (
-    <div className="col-md-12 signup-form">
-      <div className="card card-container">
-        <img
-          src="//ssl.gstatic.com/accounts/ui/avatar_2x.png"
-          alt="profile-img"
-          className="profile-img-card"
-        />
-        <Formik
-          initialValues={initialValues}
-          validationSchema={validationSchema}
-          onSubmit={handleRegister}
-        >
-          {({ errors, touched }) => (
-            <Form>
-              {!successful && (
-                <div>
-                  <div className="form-group">
-                    <label htmlFor="name">Username</label>
-                    <Field
-                      name="username"
-                      type="text"
-                      className={
-                        "form-control" +
-                        (errors.username && touched.username
-                          ? " is-invalid"
-                          : "")
-                      }
-                    />
-                    <ErrorMessage
-                      name="username"
-                      component="div"
-                      className="invalid-feedback"
-                    />
-                  </div>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+      <section className="col-md-12 signup-form mt-5 text-white-50">
+        <div className="form-card">
+          <h2 className="text-center text-white pt-4 pb-1">Registration</h2>
+          <form className="form" onSubmit={handleRegister}>
 
-                  <div className="form-group">
-                    <label htmlFor="email">Email</label>
-                    <Field
-                      name="email"
-                      type="email"
-                      className={
-                        "form-control" +
-                        (errors.email && touched.email ? " is-invalid" : "")
-                      }
-                    />
-                    <ErrorMessage
-                      name="email"
-                      component="div"
-                      className="invalid-feedback"
-                    />
-                  </div>
+            <div className="form-group mb-3">
+              <input
+                name="username"
+                type="text"
+                required
+                value={username}
+                onChange={(e) => {
+                  setUsername(e.target.value);
+                  setInputErrors((rest) => ({
+                    ...rest,
+                    username: ""
+                  }));
+                }}
+                onBlur={checkUsername}
+                className={`${inputErrors.username ? "is-invalid" : ""}`}
+              />
+              <label htmlFor="username">Username</label>
+              {inputErrors.username && <div className="invalid-feedback">{inputErrors.username}</div>}
+            </div>
 
-                  <div className="form-group">
-                    <label htmlFor="password">Password</label>
-                    <Field
-                      name="password"
-                      type="password"
-                      className={
-                        "form-control" +
-                        (errors.password && touched.password
-                          ? " is-invalid"
-                          : "")
-                      }
-                    />
-                    <ErrorMessage
-                      name="password"
-                      component="div"
-                      className="invalid-feedback"
-                    />
-                  </div>
+            <div className="form-group mb-3">
+              <input
+                name="email"
+                type="text"
+                required
+                value={email}
+                pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setInputErrors((rest) => ({
+                    ...rest,
+                    email: ""
+                  }));
+                }}
+                onBlur={checkEmail}
+                className={`${inputErrors.email ? "is-invalid" : ""}`}
+              />
+              <label htmlFor="email">E-mail</label>
+              {inputErrors.email && <div className="invalid-feedback">{inputErrors.email}</div>}
+            </div>
 
-                  <div className="form-group">
-                    <button type="submit" className="btn btn-primary btn-block">
-                      Sign Up
-                    </button>
-                  </div>
-                </div>
-              )}
-            </Form>
-          )}
-        </Formik>
-      </div>
+            <div className="form-group">
+              <input
+                name="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setInputErrors((rest) => ({
+                    ...rest,
+                    password: ""
+                  }));
+                }}
+                onBlur={checkPassword}
+                className={`${inputErrors.password ? "is-invalid" : ""}`}
+              />
+              <label htmlFor="password">Password</label>
+              {inputErrors.password && <div className="invalid-feedback">{inputErrors.password}</div>}
+            </div>
 
-      {message && (
-        <div className="form-group">
-          <div
-            className={
-              successful ? "alert alert-success" : "alert alert-danger"
-            }
-            role="alert"
-          >
-            {message}
-          </div>
+            <div className="form-group d-flex justify-content-between align-items-baseline">
+              <button
+                type="submit"
+                className="submit-btn"
+                disabled={registrationResult.isLoading}
+              >
+                {registrationResult.isLoading && (
+                  <span className="spinner-border spinner-border-sm"></span>
+                )}
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+
+                Submit
+              </button>
+              {errMsg && <div className="error-response">{errMsg}</div>}
+              {successMsg && <div className="success-registration">{successMsg}</div>}
+            </div>
+          </form>
         </div>
-      )}
-    </div>
+      </section>
+    </motion.div>
   );
 };
 

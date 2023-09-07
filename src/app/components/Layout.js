@@ -1,16 +1,15 @@
 import { Outlet, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 
 import { useLogoutMutation } from "../api/api";
 import { selectCurrentUser } from "../slices/authSlice";
 
 const Layout = () => {
 
-  const [logout, { isLoading }] = useLogoutMutation();
+  const [logout] = useLogoutMutation();
   const [showAdminBoard, setShowAdminBoard] = useState(false);
   const user = useSelector(selectCurrentUser);
-  const dispatch = useDispatch()
 
   useEffect(() => {
     if (user) {
@@ -21,18 +20,12 @@ const Layout = () => {
   }, [user])
 
   return (
-    <div>
-      <nav className="navbar navbar-expand navbar-dark bg-dark">
-        <Link to={"/"} className="navbar-brand">
-          Vault
+    <>
+      <nav className="navbar navbar-expand px-5 navbar-dark justify-content-between">
+        <Link to={"/"} className="navbar-brand text-uppercase">
+          Media vault
         </Link>
         <div className="navbar-nav mr-auto">
-          <li className="nav-item">
-            <Link to={"/"} className="nav-link">
-              Home
-            </Link>
-          </li>
-
           {showAdminBoard && (
             <li className="nav-item">
               <Link to={"/admin"} className="nav-link">
@@ -40,11 +33,10 @@ const Layout = () => {
               </Link>
             </li>
           )}
-
           {user && (
             <li className="nav-item">
-              <Link to={"/user"} className="nav-link">
-                User
+              <Link to={"/vault"} className="nav-link">
+                My photos
               </Link>
             </li>
           )}
@@ -53,37 +45,34 @@ const Layout = () => {
         {user ? (
           <div className="navbar-nav ml-auto">
             <li className="nav-item">
-              <Link to={"/profile"} className="nav-link">
-                {user.username}
+              <Link to={"/profile"} className="nav-link fw-medium">
+                {(user.name).toUpperCase()}
               </Link>
             </li>
             <li className="nav-item">
-              <a href="/login" className="nav-link" onClick={logout}>
-                LogOut
+              <a href="/" className="nav-link fw-medium" onClick={logout}>
+                Logout
               </a>
             </li>
           </div>
         ) : (
           <div className="navbar-nav ml-auto">
             <li className="nav-item">
-              <Link to={"/login"} className="nav-link">
+              <Link to={"/login"} className="nav-link fw-medium">
                 Login
               </Link>
             </li>
 
             <li className="nav-item">
-              <Link to={"/register"} className="nav-link">
+              <Link to={"/register"} className="nav-link fw-medium">
                 Sign Up
               </Link>
             </li>
           </div>
         )}
       </nav>
-
-      <div className="container mt-3">
-        <Outlet />
-      </div>
-    </div>
+      <Outlet />
+    </>
   )
 }
 

@@ -1,38 +1,45 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "../slices/authSlice";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { useLogoutMutation } from "../api/api";
 
-import { useGetPublicContentQuery } from "../api/api";
 
 const Home = () => {
-  //const [content, setContent] = useState("");
+  const user = useSelector(selectCurrentUser)
+  const [logout] = useLogoutMutation()
 
-  const { data: response, isFetching, isSuccess, isLoading, isError, error } = useGetPublicContentQuery();
-
-  // useEffect(() => {
-  //   UserService.getPublicContent().then(
-  //     (response) => {
-  //       setContent(response.data);
-  //     },
-  //     (error) => {
-  //       const _content =
-  //         (error.response && error.response.data) ||
-  //         error.message ||
-  //         error.toString();
-
-  //       setContent(_content);
-  //     }
-  //   );
-  // }, []);
-
-  if (isLoading) return <div>Loading...</div>
-  if (isError) return <div>Error! {error.data.message}</div>
-  if (!response) return <div>Content is missing!</div>
+  useEffect(() => {
+    if (!user) {
+      logout()
+    }
+  }, [user, logout])
 
   return (
-    <div className="container">
-      <header className="jumbotron">
-        <h3>{response.message}</h3>
-      </header>
-    </div>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} >
+      <section className="main d-flex flex-column justify-content-center align-items-center text-white">
+        <h1 className="p-3">Experience your memories like never before</h1>
+        <h2 className="magic-text p-3">Create. Collect. Share.</h2>
+        {user
+          ? (
+              <Link to="/vault" className="btn-homepage btn btn-lg btn-outline-light m-3">
+              MY VAULT
+              </Link>
+          )
+          : (
+              <Link to="/login" className="btn-homepage btn btn-lg btn-outline-light m-3">
+              BEGIN
+              </Link>
+          )}
+      </section>
+    </motion.div>
+
+    // <div className="container">
+    //   <header className="jumbotron">
+    //     <h3>{response.message}</h3>
+    //   </header>
+    // </div>
   );
 };
 
