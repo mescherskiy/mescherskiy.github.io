@@ -13,7 +13,7 @@ root.render(
     <Provider store={store}>
       <BrowserRouter>
         <Routes>
-          <Route path="/*" element={<App />} />
+          <Route path="/mediahosting_frontend_v2/*" element={<App />} />
         </Routes>
       </BrowserRouter>
     </Provider>
