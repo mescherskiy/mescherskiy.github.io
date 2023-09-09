@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useDropzone } from "react-dropzone";
 import { useSelector } from "react-redux";

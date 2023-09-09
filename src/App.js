@@ -5,7 +5,6 @@ import "./App.css";
 
 import NavBar from "./app/components/NavBar";
 import AnimatedRoutes from "./app/components/AnimatedRoutes";
-import { AnimatePresence } from "framer-motion";
 
 const App = () => {
 

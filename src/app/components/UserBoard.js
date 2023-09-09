@@ -1,28 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 
 import { useGetUserBoardQuery } from "../api/api";
 
 const UserBoard = () => {
-  // const [content, setContent] = useState("");
-
-  // useEffect(() => {
-  //   UserService.getUserBoard().then(
-  //     (response) => {
-  //       setContent(response.data);
-  //     },
-  //     (error) => {
-  //       const _content =
-  //         (error.response &&
-  //           error.response.data &&
-  //           error.response.data.message) ||
-  //         error.message ||
-  //         error.toString();
-
-  //       setContent(_content);
-  //     }
-  //   );
-  // }, []);
-
+  
   const { data: response, isError, error, isLoading } = useGetUserBoardQuery();
 
   if (isLoading) return <div>Loading...</div>
